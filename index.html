@@ -208,7 +208,7 @@
   .list.drag::after { content: attr(data-drop); }
   .queue { flex: 1 1 54%; min-width: 320px; }
   .setp  { flex: 1 1 46%; min-width: 320px; }
-  .thumb { width: 52px; height: 52px; border: 2px solid var(--ink); background: var(--mint-l); flex-shrink: 0; object-fit: cover; display: block; }
+  .thumb { width: 52px; height: 52px; border: 2px solid var(--ink); background: var(--mint-l); flex-shrink: 0; object-fit: contain; display: block; }
   .chip.res { background: var(--ink); color: #fff; }
   .chip.warn { background: var(--peach-l); border-style: dashed; }
   .why { font-size: .76rem; font-weight: 700; margin-top: 7px; border-left: 3px solid var(--ink); padding-left: 8px; line-height: 1.45; }
@@ -465,10 +465,12 @@
   }
   function makeThumb(bmp) {
     const d = dimOf(bmp), S = 104, c = document.createElement('canvas'); c.width = S; c.height = S;
-    const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, S, S);
+    const g = c.getContext('2d'); g.fillStyle = '#E8E8E8'; g.fillRect(0, 0, S, S);
     g.imageSmoothingQuality = 'high';
-    const r = Math.max(S / d.w, S / d.h), sw = S / r, sh = S / r;
-    g.drawImage(bmp, (d.w - sw) / 2, (d.h - sh) / 2, sw, sh, 0, 0, S, S);
+    /* 1:1 틀 안에 원래 비율 그대로 (잘라내지 않고 전체를 보여줌) */
+    const r = Math.min(S / d.w, S / d.h), dw = Math.round(d.w * r), dh = Math.round(d.h * r);
+    g.fillStyle = '#fff'; g.fillRect((S - dw) / 2, (S - dh) / 2, dw, dh);
+    g.drawImage(bmp, (S - dw) / 2, (S - dh) / 2, dw, dh);
     return c.toDataURL('image/jpeg', 0.7);
   }
 
