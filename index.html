@@ -569,7 +569,7 @@
     const done = hasResults && items.length && items.every(x => x.res);
     btnSave.hidden = !done;
     saveLabel.textContent = items.length > 1 ? t('save_zip') : t('save');
-    runLabel.textContent = done ? t('rerun') : t('run');
+    runLabel.textContent = t('run');
   }
 
   /* ---------- 줄이기 ---------- */
