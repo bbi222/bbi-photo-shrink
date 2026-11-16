@@ -349,7 +349,7 @@
       act_save: '이 사진만 저장', act_del: '목록에서 삭제', processing: '처리 중… {0} / {1}',
       err_nophoto: '사진 파일(JPG, PNG, WEBP 등)만 추가할 수 있어요', err_heic: '이 브라우저에서는 HEIC 사진을 열 수 없어요 (JPG로 바꿔서 올려 주세요)',
       err_open: '열 수 없는 사진이에요', err_skipped: '{0}개는 사진이 아니라서 건너뛰었어요', err_check: '확인해 주세요\n{0}', pasted: '붙여넣은_사진_{0}.png',
-      note_keep: '이미 목표보다 작아서 그대로예요', fail_chip: '목표 용량을 못 맞췄어요',
+      note_keep: '이미 목표보다 작아서 그대로예요', note_same: '바꿀 게 없어서 그대로예요', fail_chip: '목표 용량을 못 맞췄어요',
       why_exact: '{0}×{1} 크기를 지키면서 {2}KB까지 줄일 수는 없어서 {3}에서 멈췄어요. 크기를 더 작게 정하거나 목표 용량을 늘려 보세요.',
       why_fit: '{0}KB까지 줄이려면 사진이 너무 작아져야 해서 {1}×{2}({3})에서 멈췄어요. 목표 용량을 조금 늘려 보세요.',
       need_kb: '목표 용량(KB)을 숫자로 적어 주세요', need_size: '"용량은 그대로"를 고르면 크기(px)는 꼭 정해야 해요',
@@ -377,7 +377,7 @@
       act_save: 'Save this photo', act_del: 'Remove from list', processing: 'Working… {0} / {1}',
       err_nophoto: 'Only photo files (JPG, PNG, WEBP, etc.) can be added', err_heic: "This browser can't open HEIC photos (please convert to JPG)",
       err_open: "This photo can't be opened", err_skipped: '{0} non-photo file(s) were skipped', err_check: 'Please check\n{0}', pasted: 'pasted_photo_{0}.png',
-      note_keep: 'Already under the target, kept as is', fail_chip: "Couldn't reach the target size",
+      note_keep: 'Already under the target, kept as is', note_same: 'Nothing to change, kept as is', fail_chip: "Couldn't reach the target size",
       why_exact: "Keeping {0}×{1}, it can't get down to {2} KB, so it stopped at {3}. Try a smaller size or a larger target.",
       why_fit: 'Reaching {0} KB would make the photo too small, so it stopped at {1}×{2} ({3}). Try a slightly larger target.',
       need_kb: 'Please enter a target size in KB', need_size: 'With "Keep file size", you need to set a size (px)',
@@ -535,7 +535,7 @@
         const pct = Math.min(99, Math.round((1 - r.blob.size / it.size) * 100));
         let txt = '→ ' + r.w + '×' + r.h + ' · ' + fmtBytes(r.blob.size) + (pct > 0 ? ' (−' + pct + '%)' : '');
         chips.appendChild(el('span', 'chip res', txt));
-        if (r.keep) chips.appendChild(el('span', 'chip warn', t('note_keep')));
+        if (r.keep) chips.appendChild(el('span', 'chip warn', t(r.same ? 'note_same' : 'note_keep')));
         if (r.fail) chips.appendChild(el('span', 'chip warn', t('fail_chip')));
       }
       info.appendChild(nm); info.appendChild(chips);
@@ -613,6 +613,10 @@
     if (target && !resized && it.size <= target) {
       if (bmp.close) bmp.close();
       return { blob: it.file, w: sw, h: sh, keep: true };
+    }
+    if (!target && !resized) {   // 용량도 크기도 바꿀 게 없으면 원본 그대로 (다시 저장하면 오히려 커질 수 있어요)
+      if (bmp.close) bmp.close();
+      return { blob: it.file, w: sw, h: sh, keep: true, same: true };
     }
     if (!target) {
       const c = drawTo(bmp, tw, th, sx, sy, sW, sH);
